@@ -1,0 +1,34 @@
+name: trade_chart
+description: Native-rendered Flutter trading chart SDK with candlestick, line, volume, gestures, markers, and realtime V1 support.
+version: 1.0.0
+homepage: https://example.com/trade_chart
+repository: https://example.com/trade_chart
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.16.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  pigeon: ^22.0.0
+
+topics:
+  - flutter
+  - chart
+  - trading
+  - finance
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.tradechart.plugin
+        pluginClass: TradeChartPlugin
+      ios:
+        pluginClass: TradeChartPlugin
