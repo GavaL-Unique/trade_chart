@@ -6,7 +6,6 @@ import 'package:trade_chart/trade_chart.dart';
 
 import '../data/fake_realtime_stream.dart';
 import '../data/sample_candles.dart';
-import '../widgets/timeframe_bar.dart';
 
 class ChartScreen extends StatefulWidget {
   const ChartScreen({super.key});
@@ -19,7 +18,7 @@ class _ChartScreenState extends State<ChartScreen> {
   final TradeChartController _controller = TradeChartController();
   final FakeRealtimeStream _fakeRealtimeStream = FakeRealtimeStream();
 
-  ChartType _chartType = ChartType.candle;
+  final ChartType _chartType = ChartType.candle;
   ChartTimeframe _timeframe = ChartTimeframe.h1;
   ViewportState? _viewport;
   CrosshairEvent? _crosshair;
@@ -43,24 +42,12 @@ class _ChartScreenState extends State<ChartScreen> {
 
     return Scaffold(
       backgroundColor: theme.backgroundColor,
-      appBar: AppBar(title: const Text('trade_chart V1 Example')),
+      appBar: AppBar(title: const Text('trade_chart Bybit-style Example')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TimeframeBar(
-              selectedTimeframe: _timeframe,
-              selectedChartType: _chartType,
-              onTimeframeSelected: _handleTimeframeSelected,
-              onChartTypeSelected: (chartType) async {
-                setState(() {
-                  _chartType = chartType;
-                });
-                await _controller.setChartType(chartType);
-              },
-            ),
-            const SizedBox(height: 12),
             Row(
               children: [
                 Switch(
@@ -89,6 +76,11 @@ class _ChartScreenState extends State<ChartScreen> {
                 TextButton(
                   onPressed: () => _controller.scrollToEnd(),
                   child: const Text('Scroll to latest'),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: _controller.enterFullscreen,
+                  child: const Text('Fullscreen'),
                 ),
               ],
             ),
@@ -140,12 +132,22 @@ class _ChartScreenState extends State<ChartScreen> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: TradeChart(
+                      child: TradeChartWidget(
                         controller: _controller,
+                        theme: theme,
                         config: TradeChartConfig(
                           showVolume: true,
                           initialChartType: _chartType,
                         ),
+                        availableTimeframes: const [
+                          ChartTimeframe.m1,
+                          ChartTimeframe.m5,
+                          ChartTimeframe.m15,
+                          ChartTimeframe.h1,
+                          ChartTimeframe.h4,
+                          ChartTimeframe.d1,
+                        ],
+                        onTimeframeSelected: _handleTimeframeSelected,
                         onChartReady: () async {
                           _chartReady = true;
                           await _loadTimeframe(_timeframe);

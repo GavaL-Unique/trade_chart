@@ -51,6 +51,7 @@ class FlutterError (
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class ChartInitParams (
+  val chartId: Long,
   val width: Double,
   val height: Double,
   val devicePixelRatio: Double,
@@ -60,16 +61,18 @@ data class ChartInitParams (
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): ChartInitParams {
-      val width = pigeonVar_list[0] as Double
-      val height = pigeonVar_list[1] as Double
-      val devicePixelRatio = pigeonVar_list[2] as Double
-      val theme = pigeonVar_list[3] as ThemeMessage
-      val config = pigeonVar_list[4] as ConfigMessage
-      return ChartInitParams(width, height, devicePixelRatio, theme, config)
+      val chartId = pigeonVar_list[0] as Long
+      val width = pigeonVar_list[1] as Double
+      val height = pigeonVar_list[2] as Double
+      val devicePixelRatio = pigeonVar_list[3] as Double
+      val theme = pigeonVar_list[4] as ThemeMessage
+      val config = pigeonVar_list[5] as ConfigMessage
+      return ChartInitParams(chartId, width, height, devicePixelRatio, theme, config)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
+      chartId,
       width,
       height,
       devicePixelRatio,
@@ -455,26 +458,26 @@ private open class ChartApiPigeonCodec : StandardMessageCodec() {
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface ChartHostApi {
   fun initialize(params: ChartInitParams, callback: (Result<Long>) -> Unit)
-  fun dispose()
-  fun onSizeChanged(width: Double, height: Double)
-  fun loadCandles(data: CandleDataListMessage)
-  fun appendCandle(candle: CandleDataMessage)
-  fun updateLastCandle(candle: CandleDataMessage)
-  fun setMarkers(markers: MarkerListMessage)
-  fun addMarker(marker: MarkerMessage)
-  fun clearMarkers()
-  fun setChartType(chartType: String)
-  fun setTimeframe(timeframe: String)
-  fun setTheme(theme: ThemeMessage)
-  fun setConfig(config: ConfigMessage)
-  fun scrollToEnd()
-  fun onPanUpdate(deltaX: Double)
-  fun onPanEnd(velocityX: Double)
-  fun onScaleUpdate(scaleFactor: Double, focalPointX: Double)
-  fun onScaleEnd()
-  fun onCrosshairStart(x: Double, y: Double)
-  fun onCrosshairMove(x: Double, y: Double)
-  fun onCrosshairEnd()
+  fun dispose(chartId: Long)
+  fun onSizeChanged(chartId: Long, width: Double, height: Double)
+  fun loadCandles(chartId: Long, data: CandleDataListMessage)
+  fun appendCandle(chartId: Long, candle: CandleDataMessage)
+  fun updateLastCandle(chartId: Long, candle: CandleDataMessage)
+  fun setMarkers(chartId: Long, markers: MarkerListMessage)
+  fun addMarker(chartId: Long, marker: MarkerMessage)
+  fun clearMarkers(chartId: Long)
+  fun setChartType(chartId: Long, chartType: String)
+  fun setTimeframe(chartId: Long, timeframe: String)
+  fun setTheme(chartId: Long, theme: ThemeMessage)
+  fun setConfig(chartId: Long, config: ConfigMessage)
+  fun scrollToEnd(chartId: Long)
+  fun onPanUpdate(chartId: Long, deltaX: Double)
+  fun onPanEnd(chartId: Long, velocityX: Double)
+  fun onScaleUpdate(chartId: Long, scaleFactor: Double, focalPointX: Double)
+  fun onScaleEnd(chartId: Long)
+  fun onCrosshairStart(chartId: Long, x: Double, y: Double)
+  fun onCrosshairMove(chartId: Long, x: Double, y: Double)
+  fun onCrosshairEnd(chartId: Long)
 
   companion object {
     /** The codec used by ChartHostApi. */
@@ -508,9 +511,11 @@ interface ChartHostApi {
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.trade_chart.ChartHostApi.dispose$separatedMessageChannelSuffix", codec)
         if (api != null) {
-          channel.setMessageHandler { _, reply ->
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val chartIdArg = args[0] as Long
             val wrapped: List<Any?> = try {
-              api.dispose()
+              api.dispose(chartIdArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -526,10 +531,11 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val widthArg = args[0] as Double
-            val heightArg = args[1] as Double
+            val chartIdArg = args[0] as Long
+            val widthArg = args[1] as Double
+            val heightArg = args[2] as Double
             val wrapped: List<Any?> = try {
-              api.onSizeChanged(widthArg, heightArg)
+              api.onSizeChanged(chartIdArg, widthArg, heightArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -545,9 +551,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val dataArg = args[0] as CandleDataListMessage
+            val chartIdArg = args[0] as Long
+            val dataArg = args[1] as CandleDataListMessage
             val wrapped: List<Any?> = try {
-              api.loadCandles(dataArg)
+              api.loadCandles(chartIdArg, dataArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -563,9 +570,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val candleArg = args[0] as CandleDataMessage
+            val chartIdArg = args[0] as Long
+            val candleArg = args[1] as CandleDataMessage
             val wrapped: List<Any?> = try {
-              api.appendCandle(candleArg)
+              api.appendCandle(chartIdArg, candleArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -581,9 +589,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val candleArg = args[0] as CandleDataMessage
+            val chartIdArg = args[0] as Long
+            val candleArg = args[1] as CandleDataMessage
             val wrapped: List<Any?> = try {
-              api.updateLastCandle(candleArg)
+              api.updateLastCandle(chartIdArg, candleArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -599,9 +608,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val markersArg = args[0] as MarkerListMessage
+            val chartIdArg = args[0] as Long
+            val markersArg = args[1] as MarkerListMessage
             val wrapped: List<Any?> = try {
-              api.setMarkers(markersArg)
+              api.setMarkers(chartIdArg, markersArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -617,9 +627,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val markerArg = args[0] as MarkerMessage
+            val chartIdArg = args[0] as Long
+            val markerArg = args[1] as MarkerMessage
             val wrapped: List<Any?> = try {
-              api.addMarker(markerArg)
+              api.addMarker(chartIdArg, markerArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -633,9 +644,11 @@ interface ChartHostApi {
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.trade_chart.ChartHostApi.clearMarkers$separatedMessageChannelSuffix", codec)
         if (api != null) {
-          channel.setMessageHandler { _, reply ->
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val chartIdArg = args[0] as Long
             val wrapped: List<Any?> = try {
-              api.clearMarkers()
+              api.clearMarkers(chartIdArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -651,9 +664,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val chartTypeArg = args[0] as String
+            val chartIdArg = args[0] as Long
+            val chartTypeArg = args[1] as String
             val wrapped: List<Any?> = try {
-              api.setChartType(chartTypeArg)
+              api.setChartType(chartIdArg, chartTypeArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -669,9 +683,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val timeframeArg = args[0] as String
+            val chartIdArg = args[0] as Long
+            val timeframeArg = args[1] as String
             val wrapped: List<Any?> = try {
-              api.setTimeframe(timeframeArg)
+              api.setTimeframe(chartIdArg, timeframeArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -687,9 +702,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val themeArg = args[0] as ThemeMessage
+            val chartIdArg = args[0] as Long
+            val themeArg = args[1] as ThemeMessage
             val wrapped: List<Any?> = try {
-              api.setTheme(themeArg)
+              api.setTheme(chartIdArg, themeArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -705,9 +721,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val configArg = args[0] as ConfigMessage
+            val chartIdArg = args[0] as Long
+            val configArg = args[1] as ConfigMessage
             val wrapped: List<Any?> = try {
-              api.setConfig(configArg)
+              api.setConfig(chartIdArg, configArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -721,9 +738,11 @@ interface ChartHostApi {
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.trade_chart.ChartHostApi.scrollToEnd$separatedMessageChannelSuffix", codec)
         if (api != null) {
-          channel.setMessageHandler { _, reply ->
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val chartIdArg = args[0] as Long
             val wrapped: List<Any?> = try {
-              api.scrollToEnd()
+              api.scrollToEnd(chartIdArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -739,9 +758,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val deltaXArg = args[0] as Double
+            val chartIdArg = args[0] as Long
+            val deltaXArg = args[1] as Double
             val wrapped: List<Any?> = try {
-              api.onPanUpdate(deltaXArg)
+              api.onPanUpdate(chartIdArg, deltaXArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -757,9 +777,10 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val velocityXArg = args[0] as Double
+            val chartIdArg = args[0] as Long
+            val velocityXArg = args[1] as Double
             val wrapped: List<Any?> = try {
-              api.onPanEnd(velocityXArg)
+              api.onPanEnd(chartIdArg, velocityXArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -775,10 +796,11 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val scaleFactorArg = args[0] as Double
-            val focalPointXArg = args[1] as Double
+            val chartIdArg = args[0] as Long
+            val scaleFactorArg = args[1] as Double
+            val focalPointXArg = args[2] as Double
             val wrapped: List<Any?> = try {
-              api.onScaleUpdate(scaleFactorArg, focalPointXArg)
+              api.onScaleUpdate(chartIdArg, scaleFactorArg, focalPointXArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -792,9 +814,11 @@ interface ChartHostApi {
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.trade_chart.ChartHostApi.onScaleEnd$separatedMessageChannelSuffix", codec)
         if (api != null) {
-          channel.setMessageHandler { _, reply ->
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val chartIdArg = args[0] as Long
             val wrapped: List<Any?> = try {
-              api.onScaleEnd()
+              api.onScaleEnd(chartIdArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -810,10 +834,11 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val xArg = args[0] as Double
-            val yArg = args[1] as Double
+            val chartIdArg = args[0] as Long
+            val xArg = args[1] as Double
+            val yArg = args[2] as Double
             val wrapped: List<Any?> = try {
-              api.onCrosshairStart(xArg, yArg)
+              api.onCrosshairStart(chartIdArg, xArg, yArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -829,10 +854,11 @@ interface ChartHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val xArg = args[0] as Double
-            val yArg = args[1] as Double
+            val chartIdArg = args[0] as Long
+            val xArg = args[1] as Double
+            val yArg = args[2] as Double
             val wrapped: List<Any?> = try {
-              api.onCrosshairMove(xArg, yArg)
+              api.onCrosshairMove(chartIdArg, xArg, yArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -846,9 +872,11 @@ interface ChartHostApi {
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.trade_chart.ChartHostApi.onCrosshairEnd$separatedMessageChannelSuffix", codec)
         if (api != null) {
-          channel.setMessageHandler { _, reply ->
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val chartIdArg = args[0] as Long
             val wrapped: List<Any?> = try {
-              api.onCrosshairEnd()
+              api.onCrosshairEnd(chartIdArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -870,12 +898,12 @@ class ChartFlutterApi(private val binaryMessenger: BinaryMessenger, private val 
       ChartApiPigeonCodec()
     }
   }
-  fun onChartReady(callback: (Result<Unit>) -> Unit)
+  fun onChartReady(chartIdArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.trade_chart.ChartFlutterApi.onChartReady$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(null) {
+    channel.send(listOf(chartIdArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -887,12 +915,12 @@ class ChartFlutterApi(private val binaryMessenger: BinaryMessenger, private val 
       } 
     }
   }
-  fun onViewportChanged(viewportArg: ViewportStateMessage, callback: (Result<Unit>) -> Unit)
+  fun onViewportChanged(chartIdArg: Long, viewportArg: ViewportStateMessage, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.trade_chart.ChartFlutterApi.onViewportChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(viewportArg)) {
+    channel.send(listOf(chartIdArg, viewportArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -904,12 +932,12 @@ class ChartFlutterApi(private val binaryMessenger: BinaryMessenger, private val 
       } 
     }
   }
-  fun onCrosshairData(dataArg: CrosshairDataMessage, callback: (Result<Unit>) -> Unit)
+  fun onCrosshairData(chartIdArg: Long, dataArg: CrosshairDataMessage, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.trade_chart.ChartFlutterApi.onCrosshairData$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(dataArg)) {
+    channel.send(listOf(chartIdArg, dataArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -921,12 +949,12 @@ class ChartFlutterApi(private val binaryMessenger: BinaryMessenger, private val 
       } 
     }
   }
-  fun onError(codeArg: String, messageArg: String, callback: (Result<Unit>) -> Unit)
+  fun onError(chartIdArg: Long, codeArg: String, messageArg: String, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(codeArg, messageArg)) {
+    channel.send(listOf(chartIdArg, codeArg, messageArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))

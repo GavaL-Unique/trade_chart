@@ -70,6 +70,7 @@ private func nilOrValue<T>(_ value: Any?) -> T? {
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct ChartInitParams {
+  var chartId: Int64
   var width: Double
   var height: Double
   var devicePixelRatio: Double
@@ -79,13 +80,15 @@ struct ChartInitParams {
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ pigeonVar_list: [Any?]) -> ChartInitParams? {
-    let width = pigeonVar_list[0] as! Double
-    let height = pigeonVar_list[1] as! Double
-    let devicePixelRatio = pigeonVar_list[2] as! Double
-    let theme = pigeonVar_list[3] as! ThemeMessage
-    let config = pigeonVar_list[4] as! ConfigMessage
+    let chartId = pigeonVar_list[0] as! Int64
+    let width = pigeonVar_list[1] as! Double
+    let height = pigeonVar_list[2] as! Double
+    let devicePixelRatio = pigeonVar_list[3] as! Double
+    let theme = pigeonVar_list[4] as! ThemeMessage
+    let config = pigeonVar_list[5] as! ConfigMessage
 
     return ChartInitParams(
+      chartId: chartId,
       width: width,
       height: height,
       devicePixelRatio: devicePixelRatio,
@@ -95,6 +98,7 @@ struct ChartInitParams {
   }
   func toList() -> [Any?] {
     return [
+      chartId,
       width,
       height,
       devicePixelRatio,
@@ -524,26 +528,26 @@ class ChartApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol ChartHostApi {
   func initialize(params: ChartInitParams, completion: @escaping (Result<Int64, Error>) -> Void)
-  func dispose() throws
-  func onSizeChanged(width: Double, height: Double) throws
-  func loadCandles(data: CandleDataListMessage) throws
-  func appendCandle(candle: CandleDataMessage) throws
-  func updateLastCandle(candle: CandleDataMessage) throws
-  func setMarkers(markers: MarkerListMessage) throws
-  func addMarker(marker: MarkerMessage) throws
-  func clearMarkers() throws
-  func setChartType(chartType: String) throws
-  func setTimeframe(timeframe: String) throws
-  func setTheme(theme: ThemeMessage) throws
-  func setConfig(config: ConfigMessage) throws
-  func scrollToEnd() throws
-  func onPanUpdate(deltaX: Double) throws
-  func onPanEnd(velocityX: Double) throws
-  func onScaleUpdate(scaleFactor: Double, focalPointX: Double) throws
-  func onScaleEnd() throws
-  func onCrosshairStart(x: Double, y: Double) throws
-  func onCrosshairMove(x: Double, y: Double) throws
-  func onCrosshairEnd() throws
+  func dispose(chartId: Int64) throws
+  func onSizeChanged(chartId: Int64, width: Double, height: Double) throws
+  func loadCandles(chartId: Int64, data: CandleDataListMessage) throws
+  func appendCandle(chartId: Int64, candle: CandleDataMessage) throws
+  func updateLastCandle(chartId: Int64, candle: CandleDataMessage) throws
+  func setMarkers(chartId: Int64, markers: MarkerListMessage) throws
+  func addMarker(chartId: Int64, marker: MarkerMessage) throws
+  func clearMarkers(chartId: Int64) throws
+  func setChartType(chartId: Int64, chartType: String) throws
+  func setTimeframe(chartId: Int64, timeframe: String) throws
+  func setTheme(chartId: Int64, theme: ThemeMessage) throws
+  func setConfig(chartId: Int64, config: ConfigMessage) throws
+  func scrollToEnd(chartId: Int64) throws
+  func onPanUpdate(chartId: Int64, deltaX: Double) throws
+  func onPanEnd(chartId: Int64, velocityX: Double) throws
+  func onScaleUpdate(chartId: Int64, scaleFactor: Double, focalPointX: Double) throws
+  func onScaleEnd(chartId: Int64) throws
+  func onCrosshairStart(chartId: Int64, x: Double, y: Double) throws
+  func onCrosshairMove(chartId: Int64, x: Double, y: Double) throws
+  func onCrosshairEnd(chartId: Int64) throws
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -571,9 +575,11 @@ class ChartHostApiSetup {
     }
     let disposeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.trade_chart.ChartHostApi.dispose\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      disposeChannel.setMessageHandler { _, reply in
+      disposeChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let chartIdArg = args[0] as! Int64
         do {
-          try api.dispose()
+          try api.dispose(chartId: chartIdArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -586,10 +592,11 @@ class ChartHostApiSetup {
     if let api = api {
       onSizeChangedChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let widthArg = args[0] as! Double
-        let heightArg = args[1] as! Double
+        let chartIdArg = args[0] as! Int64
+        let widthArg = args[1] as! Double
+        let heightArg = args[2] as! Double
         do {
-          try api.onSizeChanged(width: widthArg, height: heightArg)
+          try api.onSizeChanged(chartId: chartIdArg, width: widthArg, height: heightArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -602,9 +609,10 @@ class ChartHostApiSetup {
     if let api = api {
       loadCandlesChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let dataArg = args[0] as! CandleDataListMessage
+        let chartIdArg = args[0] as! Int64
+        let dataArg = args[1] as! CandleDataListMessage
         do {
-          try api.loadCandles(data: dataArg)
+          try api.loadCandles(chartId: chartIdArg, data: dataArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -617,9 +625,10 @@ class ChartHostApiSetup {
     if let api = api {
       appendCandleChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let candleArg = args[0] as! CandleDataMessage
+        let chartIdArg = args[0] as! Int64
+        let candleArg = args[1] as! CandleDataMessage
         do {
-          try api.appendCandle(candle: candleArg)
+          try api.appendCandle(chartId: chartIdArg, candle: candleArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -632,9 +641,10 @@ class ChartHostApiSetup {
     if let api = api {
       updateLastCandleChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let candleArg = args[0] as! CandleDataMessage
+        let chartIdArg = args[0] as! Int64
+        let candleArg = args[1] as! CandleDataMessage
         do {
-          try api.updateLastCandle(candle: candleArg)
+          try api.updateLastCandle(chartId: chartIdArg, candle: candleArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -647,9 +657,10 @@ class ChartHostApiSetup {
     if let api = api {
       setMarkersChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let markersArg = args[0] as! MarkerListMessage
+        let chartIdArg = args[0] as! Int64
+        let markersArg = args[1] as! MarkerListMessage
         do {
-          try api.setMarkers(markers: markersArg)
+          try api.setMarkers(chartId: chartIdArg, markers: markersArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -662,9 +673,10 @@ class ChartHostApiSetup {
     if let api = api {
       addMarkerChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let markerArg = args[0] as! MarkerMessage
+        let chartIdArg = args[0] as! Int64
+        let markerArg = args[1] as! MarkerMessage
         do {
-          try api.addMarker(marker: markerArg)
+          try api.addMarker(chartId: chartIdArg, marker: markerArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -675,9 +687,11 @@ class ChartHostApiSetup {
     }
     let clearMarkersChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.trade_chart.ChartHostApi.clearMarkers\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      clearMarkersChannel.setMessageHandler { _, reply in
+      clearMarkersChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let chartIdArg = args[0] as! Int64
         do {
-          try api.clearMarkers()
+          try api.clearMarkers(chartId: chartIdArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -690,9 +704,10 @@ class ChartHostApiSetup {
     if let api = api {
       setChartTypeChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let chartTypeArg = args[0] as! String
+        let chartIdArg = args[0] as! Int64
+        let chartTypeArg = args[1] as! String
         do {
-          try api.setChartType(chartType: chartTypeArg)
+          try api.setChartType(chartId: chartIdArg, chartType: chartTypeArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -705,9 +720,10 @@ class ChartHostApiSetup {
     if let api = api {
       setTimeframeChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let timeframeArg = args[0] as! String
+        let chartIdArg = args[0] as! Int64
+        let timeframeArg = args[1] as! String
         do {
-          try api.setTimeframe(timeframe: timeframeArg)
+          try api.setTimeframe(chartId: chartIdArg, timeframe: timeframeArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -720,9 +736,10 @@ class ChartHostApiSetup {
     if let api = api {
       setThemeChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let themeArg = args[0] as! ThemeMessage
+        let chartIdArg = args[0] as! Int64
+        let themeArg = args[1] as! ThemeMessage
         do {
-          try api.setTheme(theme: themeArg)
+          try api.setTheme(chartId: chartIdArg, theme: themeArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -735,9 +752,10 @@ class ChartHostApiSetup {
     if let api = api {
       setConfigChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let configArg = args[0] as! ConfigMessage
+        let chartIdArg = args[0] as! Int64
+        let configArg = args[1] as! ConfigMessage
         do {
-          try api.setConfig(config: configArg)
+          try api.setConfig(chartId: chartIdArg, config: configArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -748,9 +766,11 @@ class ChartHostApiSetup {
     }
     let scrollToEndChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.trade_chart.ChartHostApi.scrollToEnd\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      scrollToEndChannel.setMessageHandler { _, reply in
+      scrollToEndChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let chartIdArg = args[0] as! Int64
         do {
-          try api.scrollToEnd()
+          try api.scrollToEnd(chartId: chartIdArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -763,9 +783,10 @@ class ChartHostApiSetup {
     if let api = api {
       onPanUpdateChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let deltaXArg = args[0] as! Double
+        let chartIdArg = args[0] as! Int64
+        let deltaXArg = args[1] as! Double
         do {
-          try api.onPanUpdate(deltaX: deltaXArg)
+          try api.onPanUpdate(chartId: chartIdArg, deltaX: deltaXArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -778,9 +799,10 @@ class ChartHostApiSetup {
     if let api = api {
       onPanEndChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let velocityXArg = args[0] as! Double
+        let chartIdArg = args[0] as! Int64
+        let velocityXArg = args[1] as! Double
         do {
-          try api.onPanEnd(velocityX: velocityXArg)
+          try api.onPanEnd(chartId: chartIdArg, velocityX: velocityXArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -793,10 +815,11 @@ class ChartHostApiSetup {
     if let api = api {
       onScaleUpdateChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let scaleFactorArg = args[0] as! Double
-        let focalPointXArg = args[1] as! Double
+        let chartIdArg = args[0] as! Int64
+        let scaleFactorArg = args[1] as! Double
+        let focalPointXArg = args[2] as! Double
         do {
-          try api.onScaleUpdate(scaleFactor: scaleFactorArg, focalPointX: focalPointXArg)
+          try api.onScaleUpdate(chartId: chartIdArg, scaleFactor: scaleFactorArg, focalPointX: focalPointXArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -807,9 +830,11 @@ class ChartHostApiSetup {
     }
     let onScaleEndChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.trade_chart.ChartHostApi.onScaleEnd\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      onScaleEndChannel.setMessageHandler { _, reply in
+      onScaleEndChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let chartIdArg = args[0] as! Int64
         do {
-          try api.onScaleEnd()
+          try api.onScaleEnd(chartId: chartIdArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -822,10 +847,11 @@ class ChartHostApiSetup {
     if let api = api {
       onCrosshairStartChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let xArg = args[0] as! Double
-        let yArg = args[1] as! Double
+        let chartIdArg = args[0] as! Int64
+        let xArg = args[1] as! Double
+        let yArg = args[2] as! Double
         do {
-          try api.onCrosshairStart(x: xArg, y: yArg)
+          try api.onCrosshairStart(chartId: chartIdArg, x: xArg, y: yArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -838,10 +864,11 @@ class ChartHostApiSetup {
     if let api = api {
       onCrosshairMoveChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let xArg = args[0] as! Double
-        let yArg = args[1] as! Double
+        let chartIdArg = args[0] as! Int64
+        let xArg = args[1] as! Double
+        let yArg = args[2] as! Double
         do {
-          try api.onCrosshairMove(x: xArg, y: yArg)
+          try api.onCrosshairMove(chartId: chartIdArg, x: xArg, y: yArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -852,9 +879,11 @@ class ChartHostApiSetup {
     }
     let onCrosshairEndChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.trade_chart.ChartHostApi.onCrosshairEnd\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      onCrosshairEndChannel.setMessageHandler { _, reply in
+      onCrosshairEndChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let chartIdArg = args[0] as! Int64
         do {
-          try api.onCrosshairEnd()
+          try api.onCrosshairEnd(chartId: chartIdArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -867,10 +896,10 @@ class ChartHostApiSetup {
 }
 /// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
 protocol ChartFlutterApiProtocol {
-  func onChartReady(completion: @escaping (Result<Void, PigeonError>) -> Void)
-  func onViewportChanged(viewport viewportArg: ViewportStateMessage, completion: @escaping (Result<Void, PigeonError>) -> Void)
-  func onCrosshairData(data dataArg: CrosshairDataMessage, completion: @escaping (Result<Void, PigeonError>) -> Void)
-  func onError(code codeArg: String, message messageArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void)
+  func onChartReady(chartId chartIdArg: Int64, completion: @escaping (Result<Void, PigeonError>) -> Void)
+  func onViewportChanged(chartId chartIdArg: Int64, viewport viewportArg: ViewportStateMessage, completion: @escaping (Result<Void, PigeonError>) -> Void)
+  func onCrosshairData(chartId chartIdArg: Int64, data dataArg: CrosshairDataMessage, completion: @escaping (Result<Void, PigeonError>) -> Void)
+  func onError(chartId chartIdArg: Int64, code codeArg: String, message messageArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void)
 }
 class ChartFlutterApi: ChartFlutterApiProtocol {
   private let binaryMessenger: FlutterBinaryMessenger
@@ -882,10 +911,10 @@ class ChartFlutterApi: ChartFlutterApiProtocol {
   var codec: ChartApiPigeonCodec {
     return ChartApiPigeonCodec.shared
   }
-  func onChartReady(completion: @escaping (Result<Void, PigeonError>) -> Void) {
+  func onChartReady(chartId chartIdArg: Int64, completion: @escaping (Result<Void, PigeonError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.trade_chart.ChartFlutterApi.onChartReady\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage(nil) { response in
+    channel.sendMessage([chartIdArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return
@@ -900,10 +929,10 @@ class ChartFlutterApi: ChartFlutterApiProtocol {
       }
     }
   }
-  func onViewportChanged(viewport viewportArg: ViewportStateMessage, completion: @escaping (Result<Void, PigeonError>) -> Void) {
+  func onViewportChanged(chartId chartIdArg: Int64, viewport viewportArg: ViewportStateMessage, completion: @escaping (Result<Void, PigeonError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.trade_chart.ChartFlutterApi.onViewportChanged\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([viewportArg] as [Any?]) { response in
+    channel.sendMessage([chartIdArg, viewportArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return
@@ -918,10 +947,10 @@ class ChartFlutterApi: ChartFlutterApiProtocol {
       }
     }
   }
-  func onCrosshairData(data dataArg: CrosshairDataMessage, completion: @escaping (Result<Void, PigeonError>) -> Void) {
+  func onCrosshairData(chartId chartIdArg: Int64, data dataArg: CrosshairDataMessage, completion: @escaping (Result<Void, PigeonError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.trade_chart.ChartFlutterApi.onCrosshairData\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([dataArg] as [Any?]) { response in
+    channel.sendMessage([chartIdArg, dataArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return
@@ -936,10 +965,10 @@ class ChartFlutterApi: ChartFlutterApiProtocol {
       }
     }
   }
-  func onError(code codeArg: String, message messageArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void) {
+  func onError(chartId chartIdArg: Int64, code codeArg: String, message messageArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([codeArg, messageArg] as [Any?]) { response in
+    channel.sendMessage([chartIdArg, codeArg, messageArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return

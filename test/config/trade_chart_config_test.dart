@@ -18,4 +18,11 @@ void main() {
       throwsAssertionError,
     );
   });
+
+  test('TradeChartConfig equality is value-based', () {
+    expect(
+      const TradeChartConfig(showVolume: false),
+      const TradeChartConfig(showVolume: false),
+    );
+  });
 }

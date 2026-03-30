@@ -68,4 +68,56 @@ void main() {
 
     expect(controller.isAttached, isFalse);
   });
+
+  test('controller tracks fullscreen, drawings, and indicators locally', () {
+    final controller = TradeChartController();
+
+    controller.enterFullscreen();
+    controller.toggleDrawingMode();
+    controller.setDrawingTool(DrawingTool.trendLine);
+    controller.addIndicator(const IndicatorConfig.overlay(IndicatorKind.ma));
+
+    expect(controller.isFullscreen, isTrue);
+    expect(controller.isDrawingMode, isTrue);
+    expect(controller.activeDrawingTool, DrawingTool.trendLine);
+    expect(controller.indicators, hasLength(1));
+  });
+
+  test('controller restoreUiState restores serializable UI state', () {
+    final controller = TradeChartController();
+
+    controller.restoreUiState({
+      'isFullscreen': true,
+      'isDrawingMode': true,
+      'activeDrawingTool': 'ray',
+      'selectedTimeframe': 'm15',
+      'crosshairEnabled': false,
+      'indicators': [
+        {
+          'kind': 'ema',
+          'enabled': true,
+          'placement': 'overlay',
+          'parameters': {'period': 7.0},
+          'paneHeightFactor': null,
+        },
+      ],
+      'drawings': [
+        {
+          'id': 'd1',
+          'tool': 'horizontalLine',
+          'points': [
+            {'timestamp': 1, 'price': 100.0},
+          ],
+          'selected': false,
+        },
+      ],
+    });
+
+    expect(controller.isFullscreen, isTrue);
+    expect(controller.activeDrawingTool, DrawingTool.ray);
+    expect(controller.selectedTimeframe, ChartTimeframe.m15);
+    expect(controller.isCrosshairEnabled, isFalse);
+    expect(controller.indicators.single.kind, IndicatorKind.ema);
+    expect(controller.drawings.single.tool, DrawingTool.horizontalLine);
+  });
 }

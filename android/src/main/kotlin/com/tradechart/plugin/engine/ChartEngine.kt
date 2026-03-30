@@ -30,6 +30,7 @@ import com.tradechart.plugin.viewport.ViewportCalculator
 import io.flutter.view.TextureRegistry
 
 class ChartEngine(
+    private val chartId: Long,
     textureRegistry: TextureRegistry,
     private val flutterApiHolder: ChartFlutterApiHolder,
 ) {
@@ -84,8 +85,8 @@ class ChartEngine(
         textureRenderer.resize(width, height, scale)
         dirty = true
         renderCurrentFrame()
-        flutterApiHolder.onChartReady()
-        flutterApiHolder.onViewportChanged(viewportState())
+        flutterApiHolder.onChartReady(chartId)
+        flutterApiHolder.onViewportChanged(chartId, viewportState())
     }
 
     fun dispose() {
@@ -175,6 +176,8 @@ class ChartEngine(
         recomputeViewport()
         dirty = true
         renderCurrentFrame()
+        dirty = false
+        flutterApiHolder.onViewportChanged(chartId, viewportState())
     }
 
     fun setTheme(theme: ThemeMessage) {
@@ -411,11 +414,11 @@ class ChartEngine(
             renderCurrentFrame()
             dirty = false
             if (viewportChangedPending) {
-                flutterApiHolder.onViewportChanged(viewportState())
+                flutterApiHolder.onViewportChanged(chartId, viewportState())
                 viewportChangedPending = false
             }
             pendingCrosshairData?.let {
-                flutterApiHolder.onCrosshairData(it)
+                flutterApiHolder.onCrosshairData(chartId, it)
                 pendingCrosshairData = null
             }
         }

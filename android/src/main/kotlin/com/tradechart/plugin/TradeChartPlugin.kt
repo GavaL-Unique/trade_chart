@@ -19,7 +19,6 @@ class TradeChartPlugin : FlutterPlugin {
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        hostApiImpl?.dispose()
         hostApiImpl = null
         ChartHostApi.setUp(binding.binaryMessenger, null)
     }

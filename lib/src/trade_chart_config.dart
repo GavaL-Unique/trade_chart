@@ -65,4 +65,34 @@ class TradeChartConfig {
       autoScrollOnAppend: autoScrollOnAppend ?? this.autoScrollOnAppend,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is TradeChartConfig &&
+            other.showVolume == showVolume &&
+            other.showGrid == showGrid &&
+            other.enableCrosshair == enableCrosshair &&
+            other.showAxis == showAxis &&
+            other.volumeHeightRatio == volumeHeightRatio &&
+            other.maxVisibleCandles == maxVisibleCandles &&
+            other.minVisibleCandles == minVisibleCandles &&
+            other.initialChartType == initialChartType &&
+            other.yAxisPaddingRatio == yAxisPaddingRatio &&
+            other.autoScrollOnAppend == autoScrollOnAppend;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        showVolume,
+        showGrid,
+        enableCrosshair,
+        showAxis,
+        volumeHeightRatio,
+        maxVisibleCandles,
+        minVisibleCandles,
+        initialChartType,
+        yAxisPaddingRatio,
+        autoScrollOnAppend,
+      );
 }

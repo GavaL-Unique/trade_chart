@@ -50,6 +50,10 @@ class _TradeChartState extends State<TradeChart> {
     super.initState();
     _bridge = ChartBridge();
     _gestureHandler = ChartGestureHandler(_bridge);
+    widget.controller.setInitialPresentation(
+      config: widget.config,
+      theme: widget.theme,
+    );
     widget.controller.attachBridge(_bridge);
   }
 
@@ -61,10 +65,27 @@ class _TradeChartState extends State<TradeChart> {
       widget.controller.attachBridge(_bridge);
     }
     if (oldWidget.theme != widget.theme && _textureId != null) {
+      widget.controller.setInitialPresentation(
+        config: widget.config,
+        theme: widget.theme,
+      );
       unawaited(_bridge.setTheme(widget.theme));
     }
     if (oldWidget.config != widget.config && _textureId != null) {
+      widget.controller.setInitialPresentation(
+        config: widget.config,
+        theme: widget.theme,
+      );
       unawaited(_bridge.setConfig(widget.config));
+    }
+    if (oldWidget.onChartReady != widget.onChartReady ||
+        oldWidget.onViewportChange != widget.onViewportChange ||
+        oldWidget.onCrosshairUpdate != widget.onCrosshairUpdate) {
+      _bridge.updateCallbacks(
+        onChartReady: widget.onChartReady,
+        onViewportChanged: widget.onViewportChange,
+        onCrosshairData: widget.onCrosshairUpdate,
+      );
     }
   }
 

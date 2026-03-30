@@ -2,6 +2,7 @@ import 'package:pigeon/pigeon.dart';
 
 class ChartInitParams {
   ChartInitParams({
+    required this.chartId,
     required this.width,
     required this.height,
     required this.devicePixelRatio,
@@ -9,6 +10,7 @@ class ChartInitParams {
     required this.config,
   });
 
+  final int chartId;
   final double width;
   final double height;
   final double devicePixelRatio;
@@ -173,54 +175,54 @@ abstract class ChartHostApi {
   @async
   int initialize(ChartInitParams params);
 
-  void dispose();
+  void dispose(int chartId);
 
-  void onSizeChanged(double width, double height);
+  void onSizeChanged(int chartId, double width, double height);
 
-  void loadCandles(CandleDataListMessage data);
+  void loadCandles(int chartId, CandleDataListMessage data);
 
-  void appendCandle(CandleDataMessage candle);
+  void appendCandle(int chartId, CandleDataMessage candle);
 
-  void updateLastCandle(CandleDataMessage candle);
+  void updateLastCandle(int chartId, CandleDataMessage candle);
 
-  void setMarkers(MarkerListMessage markers);
+  void setMarkers(int chartId, MarkerListMessage markers);
 
-  void addMarker(MarkerMessage marker);
+  void addMarker(int chartId, MarkerMessage marker);
 
-  void clearMarkers();
+  void clearMarkers(int chartId);
 
-  void setChartType(String chartType);
+  void setChartType(int chartId, String chartType);
 
-  void setTimeframe(String timeframe);
+  void setTimeframe(int chartId, String timeframe);
 
-  void setTheme(ThemeMessage theme);
+  void setTheme(int chartId, ThemeMessage theme);
 
-  void setConfig(ConfigMessage config);
+  void setConfig(int chartId, ConfigMessage config);
 
-  void scrollToEnd();
+  void scrollToEnd(int chartId);
 
-  void onPanUpdate(double deltaX);
+  void onPanUpdate(int chartId, double deltaX);
 
-  void onPanEnd(double velocityX);
+  void onPanEnd(int chartId, double velocityX);
 
-  void onScaleUpdate(double scaleFactor, double focalPointX);
+  void onScaleUpdate(int chartId, double scaleFactor, double focalPointX);
 
-  void onScaleEnd();
+  void onScaleEnd(int chartId);
 
-  void onCrosshairStart(double x, double y);
+  void onCrosshairStart(int chartId, double x, double y);
 
-  void onCrosshairMove(double x, double y);
+  void onCrosshairMove(int chartId, double x, double y);
 
-  void onCrosshairEnd();
+  void onCrosshairEnd(int chartId);
 }
 
 @FlutterApi()
 abstract class ChartFlutterApi {
-  void onChartReady();
+  void onChartReady(int chartId);
 
-  void onViewportChanged(ViewportStateMessage viewport);
+  void onViewportChanged(int chartId, ViewportStateMessage viewport);
 
-  void onCrosshairData(CrosshairDataMessage data);
+  void onCrosshairData(int chartId, CrosshairDataMessage data);
 
-  void onError(String code, String message);
+  void onError(int chartId, String code, String message);
 }

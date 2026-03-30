@@ -16,17 +16,18 @@ class ChartHostApiImpl(
     private val textureRegistry: TextureRegistry,
     private val flutterApiHolder: ChartFlutterApiHolder,
 ) : ChartHostApi {
-    private var chartEngine: ChartEngine? = null
+    private val chartEngines = mutableMapOf<Long, ChartEngine>()
 
     override fun initialize(params: ChartInitParams, callback: (Result<Long>) -> Unit) {
         try {
-            chartEngine?.dispose()
+            chartEngines.remove(params.chartId)?.dispose()
             val engine = ChartEngine(
+                chartId = params.chartId,
                 textureRegistry = textureRegistry,
                 flutterApiHolder = flutterApiHolder,
             )
             engine.initialize(params)
-            chartEngine = engine
+            chartEngines[params.chartId] = engine
             callback(Result.success(engine.textureId))
         } catch (throwable: Throwable) {
             callback(
@@ -41,84 +42,83 @@ class ChartHostApiImpl(
         }
     }
 
-    override fun dispose() {
-        chartEngine?.dispose()
-        chartEngine = null
+    override fun dispose(chartId: Long) {
+        chartEngines.remove(chartId)?.dispose()
     }
 
-    override fun onSizeChanged(width: Double, height: Double) {
-        chartEngine?.onSizeChanged(width, height)
+    override fun onSizeChanged(chartId: Long, width: Double, height: Double) {
+        chartEngines[chartId]?.onSizeChanged(width, height)
     }
 
-    override fun loadCandles(data: CandleDataListMessage) {
-        chartEngine?.loadCandles(data)
+    override fun loadCandles(chartId: Long, data: CandleDataListMessage) {
+        chartEngines[chartId]?.loadCandles(data)
     }
 
-    override fun appendCandle(candle: CandleDataMessage) {
-        chartEngine?.appendCandle(candle)
+    override fun appendCandle(chartId: Long, candle: CandleDataMessage) {
+        chartEngines[chartId]?.appendCandle(candle)
     }
 
-    override fun updateLastCandle(candle: CandleDataMessage) {
-        chartEngine?.updateLastCandle(candle)
+    override fun updateLastCandle(chartId: Long, candle: CandleDataMessage) {
+        chartEngines[chartId]?.updateLastCandle(candle)
     }
 
-    override fun setMarkers(markers: MarkerListMessage) {
-        chartEngine?.setMarkers(markers)
+    override fun setMarkers(chartId: Long, markers: MarkerListMessage) {
+        chartEngines[chartId]?.setMarkers(markers)
     }
 
-    override fun addMarker(marker: MarkerMessage) {
-        chartEngine?.addMarker(marker)
+    override fun addMarker(chartId: Long, marker: MarkerMessage) {
+        chartEngines[chartId]?.addMarker(marker)
     }
 
-    override fun clearMarkers() {
-        chartEngine?.clearMarkers()
+    override fun clearMarkers(chartId: Long) {
+        chartEngines[chartId]?.clearMarkers()
     }
 
-    override fun setChartType(chartType: String) {
-        chartEngine?.setChartType(chartType)
+    override fun setChartType(chartId: Long, chartType: String) {
+        chartEngines[chartId]?.setChartType(chartType)
     }
 
-    override fun setTimeframe(timeframe: String) {
-        chartEngine?.setTimeframe(timeframe)
+    override fun setTimeframe(chartId: Long, timeframe: String) {
+        chartEngines[chartId]?.setTimeframe(timeframe)
     }
 
-    override fun setTheme(theme: ThemeMessage) {
-        chartEngine?.setTheme(theme)
+    override fun setTheme(chartId: Long, theme: ThemeMessage) {
+        chartEngines[chartId]?.setTheme(theme)
     }
 
-    override fun setConfig(config: ConfigMessage) {
-        chartEngine?.setConfig(config)
+    override fun setConfig(chartId: Long, config: ConfigMessage) {
+        chartEngines[chartId]?.setConfig(config)
     }
 
-    override fun scrollToEnd() {
-        chartEngine?.scrollToEnd()
+    override fun scrollToEnd(chartId: Long) {
+        chartEngines[chartId]?.scrollToEnd()
     }
 
-    override fun onPanUpdate(deltaX: Double) {
-        chartEngine?.onPanUpdate(deltaX)
+    override fun onPanUpdate(chartId: Long, deltaX: Double) {
+        chartEngines[chartId]?.onPanUpdate(deltaX)
     }
 
-    override fun onPanEnd(velocityX: Double) {
-        chartEngine?.onPanEnd(velocityX)
+    override fun onPanEnd(chartId: Long, velocityX: Double) {
+        chartEngines[chartId]?.onPanEnd(velocityX)
     }
 
-    override fun onScaleUpdate(scaleFactor: Double, focalPointX: Double) {
-        chartEngine?.onScaleUpdate(scaleFactor, focalPointX)
+    override fun onScaleUpdate(chartId: Long, scaleFactor: Double, focalPointX: Double) {
+        chartEngines[chartId]?.onScaleUpdate(scaleFactor, focalPointX)
     }
 
-    override fun onScaleEnd() {
-        chartEngine?.onScaleEnd()
+    override fun onScaleEnd(chartId: Long) {
+        chartEngines[chartId]?.onScaleEnd()
     }
 
-    override fun onCrosshairStart(x: Double, y: Double) {
-        chartEngine?.onCrosshairStart(x, y)
+    override fun onCrosshairStart(chartId: Long, x: Double, y: Double) {
+        chartEngines[chartId]?.onCrosshairStart(x, y)
     }
 
-    override fun onCrosshairMove(x: Double, y: Double) {
-        chartEngine?.onCrosshairMove(x, y)
+    override fun onCrosshairMove(chartId: Long, x: Double, y: Double) {
+        chartEngines[chartId]?.onCrosshairMove(x, y)
     }
 
-    override fun onCrosshairEnd() {
-        chartEngine?.onCrosshairEnd()
+    override fun onCrosshairEnd(chartId: Long) {
+        chartEngines[chartId]?.onCrosshairEnd()
     }
 }

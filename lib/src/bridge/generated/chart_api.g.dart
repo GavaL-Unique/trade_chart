@@ -15,11 +15,7 @@ PlatformException _createConnectionError(String channelName) {
   );
 }
 
-List<Object?> wrapResponse({
-  Object? result,
-  PlatformException? error,
-  bool empty = false,
-}) {
+List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
   if (empty) {
     return <Object?>[];
   }
@@ -31,12 +27,15 @@ List<Object?> wrapResponse({
 
 class ChartInitParams {
   ChartInitParams({
+    required this.chartId,
     required this.width,
     required this.height,
     required this.devicePixelRatio,
     required this.theme,
     required this.config,
   });
+
+  int chartId;
 
   double width;
 
@@ -49,17 +48,25 @@ class ChartInitParams {
   ConfigMessage config;
 
   Object encode() {
-    return <Object?>[width, height, devicePixelRatio, theme, config];
+    return <Object?>[
+      chartId,
+      width,
+      height,
+      devicePixelRatio,
+      theme,
+      config,
+    ];
   }
 
   static ChartInitParams decode(Object result) {
     result as List<Object?>;
     return ChartInitParams(
-      width: result[0]! as double,
-      height: result[1]! as double,
-      devicePixelRatio: result[2]! as double,
-      theme: result[3]! as ThemeMessage,
-      config: result[4]! as ConfigMessage,
+      chartId: result[0]! as int,
+      width: result[1]! as double,
+      height: result[2]! as double,
+      devicePixelRatio: result[3]! as double,
+      theme: result[4]! as ThemeMessage,
+      config: result[5]! as ConfigMessage,
     );
   }
 }
@@ -239,7 +246,14 @@ class CandleDataMessage {
   double volume;
 
   Object encode() {
-    return <Object?>[timestamp, open, high, low, close, volume];
+    return <Object?>[
+      timestamp,
+      open,
+      high,
+      low,
+      close,
+      volume,
+    ];
   }
 
   static CandleDataMessage decode(Object result) {
@@ -256,14 +270,20 @@ class CandleDataMessage {
 }
 
 class CandleDataListMessage {
-  CandleDataListMessage({required this.candles, required this.timeframe});
+  CandleDataListMessage({
+    required this.candles,
+    required this.timeframe,
+  });
 
   List<CandleDataMessage> candles;
 
   String timeframe;
 
   Object encode() {
-    return <Object?>[candles, timeframe];
+    return <Object?>[
+      candles,
+      timeframe,
+    ];
   }
 
   static CandleDataListMessage decode(Object result) {
@@ -295,7 +315,13 @@ class MarkerMessage {
   String? label;
 
   Object encode() {
-    return <Object?>[id, timestamp, price, type, label];
+    return <Object?>[
+      id,
+      timestamp,
+      price,
+      type,
+      label,
+    ];
   }
 
   static MarkerMessage decode(Object result) {
@@ -311,12 +337,16 @@ class MarkerMessage {
 }
 
 class MarkerListMessage {
-  MarkerListMessage({required this.markers});
+  MarkerListMessage({
+    required this.markers,
+  });
 
   List<MarkerMessage> markers;
 
   Object encode() {
-    return <Object?>[markers];
+    return <Object?>[
+      markers,
+    ];
   }
 
   static MarkerListMessage decode(Object result) {
@@ -407,7 +437,16 @@ class CrosshairDataMessage {
   double y;
 
   Object encode() {
-    return <Object?>[timestamp, open, high, low, close, volume, x, y];
+    return <Object?>[
+      timestamp,
+      open,
+      high,
+      low,
+      close,
+      volume,
+      x,
+      y,
+    ];
   }
 
   static CrosshairDataMessage decode(Object result) {
@@ -425,6 +464,7 @@ class CrosshairDataMessage {
   }
 }
 
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -432,31 +472,31 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is ChartInitParams) {
+    }    else if (value is ChartInitParams) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is ThemeMessage) {
+    }    else if (value is ThemeMessage) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is ConfigMessage) {
+    }    else if (value is ConfigMessage) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is CandleDataMessage) {
+    }    else if (value is CandleDataMessage) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is CandleDataListMessage) {
+    }    else if (value is CandleDataListMessage) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    } else if (value is MarkerMessage) {
+    }    else if (value is MarkerMessage) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    } else if (value is MarkerListMessage) {
+    }    else if (value is MarkerListMessage) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    } else if (value is ViewportStateMessage) {
+    }    else if (value is ViewportStateMessage) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    } else if (value is CrosshairDataMessage) {
+    }    else if (value is CrosshairDataMessage) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
     } else {
@@ -467,23 +507,23 @@ class _PigeonCodec extends StandardMessageCodec {
   @override
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
-      case 129:
+      case 129: 
         return ChartInitParams.decode(readValue(buffer)!);
-      case 130:
+      case 130: 
         return ThemeMessage.decode(readValue(buffer)!);
-      case 131:
+      case 131: 
         return ConfigMessage.decode(readValue(buffer)!);
-      case 132:
+      case 132: 
         return CandleDataMessage.decode(readValue(buffer)!);
-      case 133:
+      case 133: 
         return CandleDataListMessage.decode(readValue(buffer)!);
-      case 134:
+      case 134: 
         return MarkerMessage.decode(readValue(buffer)!);
-      case 135:
+      case 135: 
         return MarkerListMessage.decode(readValue(buffer)!);
-      case 136:
+      case 136: 
         return ViewportStateMessage.decode(readValue(buffer)!);
-      case 137:
+      case 137: 
         return CrosshairDataMessage.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -495,13 +535,9 @@ class ChartHostApi {
   /// Constructor for [ChartHostApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  ChartHostApi({
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) : pigeonVar_binaryMessenger = binaryMessenger,
-       pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
-           ? '.$messageChannelSuffix'
-           : '';
+  ChartHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -509,14 +545,12 @@ class ChartHostApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<int> initialize(ChartInitParams params) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.initialize$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.initialize$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[params]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -537,17 +571,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> dispose() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.dispose$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> dispose(int chartId) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.dispose$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(null) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -561,18 +593,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> onSizeChanged(double width, double height) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.onSizeChanged$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> onSizeChanged(int chartId, double width, double height) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.onSizeChanged$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[width, height])
-            as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, width, height]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -586,17 +615,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> loadCandles(CandleDataListMessage data) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.loadCandles$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> loadCandles(int chartId, CandleDataListMessage data) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.loadCandles$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[data]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, data]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -610,17 +637,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> appendCandle(CandleDataMessage candle) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.appendCandle$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> appendCandle(int chartId, CandleDataMessage candle) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.appendCandle$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[candle]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, candle]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -634,17 +659,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> updateLastCandle(CandleDataMessage candle) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.updateLastCandle$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> updateLastCandle(int chartId, CandleDataMessage candle) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.updateLastCandle$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[candle]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, candle]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -658,17 +681,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> setMarkers(MarkerListMessage markers) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.setMarkers$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> setMarkers(int chartId, MarkerListMessage markers) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.setMarkers$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[markers]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, markers]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -682,17 +703,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> addMarker(MarkerMessage marker) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.addMarker$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> addMarker(int chartId, MarkerMessage marker) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.addMarker$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[marker]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, marker]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -706,17 +725,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> clearMarkers() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.clearMarkers$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> clearMarkers(int chartId) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.clearMarkers$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(null) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -730,17 +747,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> setChartType(String chartType) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.setChartType$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> setChartType(int chartId, String chartType) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.setChartType$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[chartType]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, chartType]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -754,17 +769,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> setTimeframe(String timeframe) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.setTimeframe$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> setTimeframe(int chartId, String timeframe) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.setTimeframe$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[timeframe]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, timeframe]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -778,17 +791,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> setTheme(ThemeMessage theme) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.setTheme$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> setTheme(int chartId, ThemeMessage theme) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.setTheme$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[theme]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, theme]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -802,17 +813,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> setConfig(ConfigMessage config) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.setConfig$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> setConfig(int chartId, ConfigMessage config) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.setConfig$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[config]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, config]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -826,17 +835,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> scrollToEnd() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.scrollToEnd$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> scrollToEnd(int chartId) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.scrollToEnd$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(null) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -850,17 +857,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> onPanUpdate(double deltaX) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.onPanUpdate$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> onPanUpdate(int chartId, double deltaX) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.onPanUpdate$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[deltaX]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, deltaX]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -874,17 +879,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> onPanEnd(double velocityX) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.onPanEnd$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> onPanEnd(int chartId, double velocityX) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.onPanEnd$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[velocityX]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, velocityX]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -898,18 +901,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> onScaleUpdate(double scaleFactor, double focalPointX) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.onScaleUpdate$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> onScaleUpdate(int chartId, double scaleFactor, double focalPointX) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.onScaleUpdate$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[scaleFactor, focalPointX])
-            as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, scaleFactor, focalPointX]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -923,17 +923,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> onScaleEnd() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.onScaleEnd$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> onScaleEnd(int chartId) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.onScaleEnd$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(null) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -947,17 +945,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> onCrosshairStart(double x, double y) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.onCrosshairStart$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> onCrosshairStart(int chartId, double x, double y) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.onCrosshairStart$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[x, y]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, x, y]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -971,17 +967,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> onCrosshairMove(double x, double y) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.onCrosshairMove$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> onCrosshairMove(int chartId, double x, double y) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.onCrosshairMove$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[x, y]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId, x, y]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -995,17 +989,15 @@ class ChartHostApi {
     }
   }
 
-  Future<void> onCrosshairEnd() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.trade_chart.ChartHostApi.onCrosshairEnd$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<void> onCrosshairEnd(int chartId) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.trade_chart.ChartHostApi.onCrosshairEnd$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(null) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[chartId]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -1023,151 +1015,124 @@ class ChartHostApi {
 abstract class ChartFlutterApi {
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
-  void onChartReady();
+  void onChartReady(int chartId);
 
-  void onViewportChanged(ViewportStateMessage viewport);
+  void onViewportChanged(int chartId, ViewportStateMessage viewport);
 
-  void onCrosshairData(CrosshairDataMessage data);
+  void onCrosshairData(int chartId, CrosshairDataMessage data);
 
-  void onError(String code, String message);
+  void onError(int chartId, String code, String message);
 
-  static void setUp(
-    ChartFlutterApi? api, {
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) {
-    messageChannelSuffix = messageChannelSuffix.isNotEmpty
-        ? '.$messageChannelSuffix'
-        : '';
+  static void setUp(ChartFlutterApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
-      final BasicMessageChannel<Object?>
-      pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.trade_chart.ChartFlutterApi.onChartReady$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.trade_chart.ChartFlutterApi.onChartReady$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onChartReady was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_chartId = (args[0] as int?);
+          assert(arg_chartId != null,
+              'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onChartReady was null, expected non-null int.');
           try {
-            api.onChartReady();
+            api.onChartReady(arg_chartId!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?>
-      pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.trade_chart.ChartFlutterApi.onViewportChanged$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.trade_chart.ChartFlutterApi.onViewportChanged$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(
-            message != null,
-            'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onViewportChanged was null.',
-          );
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onViewportChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final ViewportStateMessage? arg_viewport =
-              (args[0] as ViewportStateMessage?);
-          assert(
-            arg_viewport != null,
-            'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onViewportChanged was null, expected non-null ViewportStateMessage.',
-          );
+          final int? arg_chartId = (args[0] as int?);
+          assert(arg_chartId != null,
+              'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onViewportChanged was null, expected non-null int.');
+          final ViewportStateMessage? arg_viewport = (args[1] as ViewportStateMessage?);
+          assert(arg_viewport != null,
+              'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onViewportChanged was null, expected non-null ViewportStateMessage.');
           try {
-            api.onViewportChanged(arg_viewport!);
+            api.onViewportChanged(arg_chartId!, arg_viewport!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?>
-      pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.trade_chart.ChartFlutterApi.onCrosshairData$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.trade_chart.ChartFlutterApi.onCrosshairData$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(
-            message != null,
-            'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onCrosshairData was null.',
-          );
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onCrosshairData was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final CrosshairDataMessage? arg_data =
-              (args[0] as CrosshairDataMessage?);
-          assert(
-            arg_data != null,
-            'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onCrosshairData was null, expected non-null CrosshairDataMessage.',
-          );
+          final int? arg_chartId = (args[0] as int?);
+          assert(arg_chartId != null,
+              'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onCrosshairData was null, expected non-null int.');
+          final CrosshairDataMessage? arg_data = (args[1] as CrosshairDataMessage?);
+          assert(arg_data != null,
+              'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onCrosshairData was null, expected non-null CrosshairDataMessage.');
           try {
-            api.onCrosshairData(arg_data!);
+            api.onCrosshairData(arg_chartId!, arg_data!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?>
-      pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(
-            message != null,
-            'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError was null.',
-          );
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final String? arg_code = (args[0] as String?);
-          assert(
-            arg_code != null,
-            'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError was null, expected non-null String.',
-          );
-          final String? arg_message = (args[1] as String?);
-          assert(
-            arg_message != null,
-            'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError was null, expected non-null String.',
-          );
+          final int? arg_chartId = (args[0] as int?);
+          assert(arg_chartId != null,
+              'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError was null, expected non-null int.');
+          final String? arg_code = (args[1] as String?);
+          assert(arg_code != null,
+              'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError was null, expected non-null String.');
+          final String? arg_message = (args[2] as String?);
+          assert(arg_message != null,
+              'Argument for dev.flutter.pigeon.trade_chart.ChartFlutterApi.onError was null, expected non-null String.');
           try {
-            api.onError(arg_code!, arg_message!);
+            api.onError(arg_chartId!, arg_code!, arg_message!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }

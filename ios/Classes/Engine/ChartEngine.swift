@@ -4,7 +4,8 @@ import Foundation
 import QuartzCore
 
 final class ChartEngine: NSObject {
-  init(textureRegistry: FlutterTextureRegistry, flutterApiHolder: ChartFlutterApiHolder) {
+  init(chartId: Int64, textureRegistry: FlutterTextureRegistry, flutterApiHolder: ChartFlutterApiHolder) {
+    self.chartId = chartId
     self.flutterApiHolder = flutterApiHolder
     textureRenderer = TextureRenderer(textureRegistry: textureRegistry)
     candleStore = CandleStore()
@@ -23,6 +24,7 @@ final class ChartEngine: NSObject {
     super.init()
   }
 
+  private let chartId: Int64
   private let flutterApiHolder: ChartFlutterApiHolder
   private let textureRenderer: TextureRenderer
   private let candleStore: CandleStore
@@ -61,8 +63,8 @@ final class ChartEngine: NSObject {
     textureRenderer.resize(width: width, height: height, scale: scale)
     dirty = true
     renderCurrentFrame()
-    flutterApiHolder.onChartReady()
-    flutterApiHolder.onViewportChanged(viewportState())
+    flutterApiHolder.onChartReady(chartId: chartId)
+    flutterApiHolder.onViewportChanged(chartId: chartId, viewport: viewportState())
   }
 
   func dispose() {
@@ -147,6 +149,8 @@ final class ChartEngine: NSObject {
     recomputeViewport()
     dirty = true
     renderCurrentFrame()
+    dirty = false
+    flutterApiHolder.onViewportChanged(chartId: chartId, viewport: viewportState())
   }
 
   func setTheme(theme: ThemeMessage) {
@@ -400,11 +404,11 @@ final class ChartEngine: NSObject {
       renderCurrentFrame()
       dirty = false
       if viewportChangedPending {
-        flutterApiHolder.onViewportChanged(viewportState())
+        flutterApiHolder.onViewportChanged(chartId: chartId, viewport: viewportState())
         viewportChangedPending = false
       }
       if let pendingCrosshairData {
-        flutterApiHolder.onCrosshairData(pendingCrosshairData)
+        flutterApiHolder.onCrosshairData(chartId: chartId, data: pendingCrosshairData)
         self.pendingCrosshairData = nil
       }
     }

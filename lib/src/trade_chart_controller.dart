@@ -9,6 +9,10 @@ import 'models/candle_data.dart';
 import 'models/chart_marker.dart';
 import 'models/chart_timeframe.dart';
 import 'models/chart_type.dart';
+import 'models/drawing_tool.dart';
+import 'models/fullscreen_behavior.dart';
+import 'models/indicator_config.dart';
+import 'models/trade_chart_ui_state.dart';
 import 'models/viewport_state.dart';
 import 'trade_chart_config.dart';
 import 'trade_chart_theme.dart';
@@ -21,6 +25,12 @@ class TradeChartController {
   StreamSubscription<ViewportChangeEvent>? _viewportSubscription;
   ViewportState? _currentViewport;
   bool _disposed = false;
+  TradeChartConfig _lastConfig = const TradeChartConfig();
+  TradeChartTheme _lastTheme = const TradeChartTheme.dark();
+  final StreamController<bool> _fullscreenRequests =
+      StreamController<bool>.broadcast();
+  final ValueNotifier<TradeChartUiState> _uiState =
+      ValueNotifier<TradeChartUiState>(const TradeChartUiState());
 
   /// Stream of crosshair updates during long-press gestures.
   Stream<CrosshairEvent> get onCrosshairUpdate =>
@@ -44,6 +54,17 @@ class TradeChartController {
 
   bool get isAttached => _bridge != null;
   ViewportState? get currentViewport => _currentViewport;
+  TradeChartConfig get currentConfig => _lastConfig;
+  TradeChartTheme get currentTheme => _lastTheme;
+  ValueListenable<TradeChartUiState> get uiStateListenable => _uiState;
+  Stream<bool> get fullscreenRequests => _fullscreenRequests.stream;
+  bool get isFullscreen => _uiState.value.isFullscreen;
+  bool get isDrawingMode => _uiState.value.isDrawingMode;
+  DrawingTool get activeDrawingTool => _uiState.value.activeDrawingTool;
+  List<IndicatorConfig> get indicators => _uiState.value.indicators;
+  List<DrawingObject> get drawings => _uiState.value.drawings;
+  ChartTimeframe? get selectedTimeframe => _uiState.value.selectedTimeframe;
+  bool get isCrosshairEnabled => _uiState.value.crosshairEnabled;
 
   void attachBridge(ChartBridge bridge) {
     _ensureNotDisposed();
@@ -106,19 +127,128 @@ class TradeChartController {
   }
 
   Future<void> setTimeframe(ChartTimeframe timeframe) {
+    _setUiState(_uiState.value.copyWith(selectedTimeframe: timeframe));
     return _requireBridge().setTimeframe(timeframe);
   }
 
   Future<void> setTheme(TradeChartTheme theme) {
+    _lastTheme = theme;
     return _requireBridge().setTheme(theme);
   }
 
   Future<void> setConfig(TradeChartConfig config) {
+    _lastConfig = config;
+    _setUiState(
+      _uiState.value.copyWith(crosshairEnabled: config.enableCrosshair),
+    );
     return _requireBridge().setConfig(config);
   }
 
   Future<void> scrollToEnd() {
     return _requireBridge().scrollToEnd();
+  }
+
+  void setInitialPresentation({
+    required TradeChartConfig config,
+    required TradeChartTheme theme,
+    FullscreenBehavior fullscreenBehavior = const FullscreenBehavior(),
+  }) {
+    _lastConfig = config;
+    _lastTheme = theme;
+    _setUiState(
+      _uiState.value.copyWith(
+        crosshairEnabled: config.enableCrosshair,
+        fullscreenBehavior: fullscreenBehavior,
+      ),
+    );
+  }
+
+  void enterFullscreen() {
+    _setUiState(_uiState.value.copyWith(isFullscreen: true));
+    _fullscreenRequests.add(true);
+  }
+
+  void exitFullscreen() {
+    _setUiState(_uiState.value.copyWith(isFullscreen: false));
+    _fullscreenRequests.add(false);
+  }
+
+  void toggleDrawingMode() {
+    _setUiState(
+      _uiState.value.copyWith(isDrawingMode: !_uiState.value.isDrawingMode),
+    );
+  }
+
+  void setDrawingTool(DrawingTool tool) {
+    _setUiState(
+      _uiState.value.copyWith(
+        activeDrawingTool: tool,
+        isDrawingMode: tool != DrawingTool.none,
+      ),
+    );
+  }
+
+  void setDrawings(List<DrawingObject> drawings) {
+    _setUiState(_uiState.value.copyWith(drawings: drawings));
+  }
+
+  void clearDrawings() {
+    _setUiState(_uiState.value.copyWith(drawings: const <DrawingObject>[]));
+  }
+
+  void addIndicator(IndicatorConfig indicator) {
+    final indicators = List<IndicatorConfig>.of(_uiState.value.indicators);
+    final existingIndex =
+        indicators.indexWhere((item) => item.kind == indicator.kind);
+    if (existingIndex >= 0) {
+      indicators[existingIndex] = indicator;
+    } else {
+      indicators.add(indicator);
+    }
+    _setUiState(_uiState.value.copyWith(indicators: indicators));
+  }
+
+  void removeIndicator(IndicatorKind kind) {
+    final indicators = _uiState.value.indicators
+        .where((item) => item.kind != kind)
+        .toList(growable: false);
+    _setUiState(_uiState.value.copyWith(indicators: indicators));
+  }
+
+  Future<void> setCrosshairEnabled(bool enabled) async {
+    _lastConfig = _lastConfig.copyWith(enableCrosshair: enabled);
+    _setUiState(_uiState.value.copyWith(crosshairEnabled: enabled));
+    final bridge = _bridge;
+    if (bridge != null) {
+      await bridge.setConfig(_lastConfig);
+    }
+  }
+
+  Map<String, Object?> saveUiState() => _uiState.value.toJson();
+
+  void restoreUiState(Map<String, Object?> json) {
+    final timeframeName = json['selectedTimeframe'] as String?;
+    _setUiState(
+      _uiState.value.copyWith(
+        isFullscreen: json['isFullscreen'] as bool? ?? false,
+        isDrawingMode: json['isDrawingMode'] as bool? ?? false,
+        activeDrawingTool: DrawingTool.values.byName(
+          json['activeDrawingTool'] as String? ?? DrawingTool.none.name,
+        ),
+        selectedTimeframe: timeframeName == null
+            ? null
+            : ChartTimeframe.values.byName(timeframeName),
+        crosshairEnabled: json['crosshairEnabled'] as bool? ?? true,
+        indicators: (json['indicators'] as List<Object?>? ?? const [])
+            .cast<Map<String, Object?>>()
+            .map(IndicatorConfig.fromJson)
+            .toList(growable: false),
+        drawings: (json['drawings'] as List<Object?>? ?? const [])
+            .cast<Map<String, Object?>>()
+            .map(DrawingObject.fromJson)
+            .toList(growable: false),
+      ),
+    );
   }
 
   void dispose() {
@@ -134,6 +264,8 @@ class TradeChartController {
     if (bridge != null) {
       unawaited(bridge.dispose());
     }
+    unawaited(_fullscreenRequests.close());
+    _uiState.dispose();
   }
 
   ChartBridge _requireBridge() {
@@ -149,6 +281,13 @@ class TradeChartController {
     if (_disposed) {
       throw StateError('TradeChartController has been disposed.');
     }
+  }
+
+  void _setUiState(TradeChartUiState state) {
+    if (_uiState.value == state) {
+      return;
+    }
+    _uiState.value = state;
   }
 
   static void _validateCandles(List<CandleData> candles) {

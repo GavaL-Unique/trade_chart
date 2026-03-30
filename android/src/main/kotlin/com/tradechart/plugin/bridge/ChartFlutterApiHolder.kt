@@ -7,19 +7,19 @@ import com.tradechart.plugin.bridge.generated.ViewportStateMessage
 class ChartFlutterApiHolder(
     private val flutterApi: ChartFlutterApi,
 ) {
-    fun onChartReady() {
-        flutterApi.onChartReady {}
+    fun onChartReady(chartId: Long) {
+        flutterApi.onChartReady(chartId) {}
     }
 
-    fun onViewportChanged(viewport: ViewportStateMessage) {
-        flutterApi.onViewportChanged(viewport) {}
+    fun onViewportChanged(chartId: Long, viewport: ViewportStateMessage) {
+        flutterApi.onViewportChanged(chartId, viewport) {}
     }
 
-    fun onCrosshairData(data: CrosshairDataMessage) {
-        flutterApi.onCrosshairData(data) {}
+    fun onCrosshairData(chartId: Long, data: CrosshairDataMessage) {
+        flutterApi.onCrosshairData(chartId, data) {}
     }
 
-    fun onError(code: String, message: String) {
-        flutterApi.onError(code, message) {}
+    fun onError(chartId: Long, code: String, message: String) {
+        flutterApi.onError(chartId, code, message) {}
     }
 }
